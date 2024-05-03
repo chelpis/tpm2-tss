@@ -586,7 +586,7 @@ TSS2_ESYS_SRC_CRYPTO = src/tss2-esys/esys_crypto_mbed.h src/tss2-esys/esys_crypt
 endif
 
 src_tss2_esys_libtss2_esys_la_CFLAGS  = $(AM_CFLAGS) -I$(srcdir)/src/tss2-esys \
-    $(TSS2_ESYS_CFLAGS_CRYPTO)
+    $(TSS2_ESYS_CFLAGS_CRYPTO) -lpigpio -lrt
 src_tss2_esys_libtss2_esys_la_LIBADD  = $(libtss2_sys) $(libtss2_mu) $(libutil)
 
 src_tss2_esys_libtss2_esys_la_LDFLAGS = $(AM_LDFLAGS) $(LIBSOCKET_LDFLAGS) \
