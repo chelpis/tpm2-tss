@@ -4,8 +4,8 @@
 #define ENABLE_GPIO     // toggle feature
 #ifdef ENABLE_GPIO
 
-#define GPIO_ACTIVE     0
-#define GPIO_INACTIVE   1
+#define GPIO_ACTIVE     1
+#define GPIO_INACTIVE   0
 #define VERBOSE         0
 
 /* ASSUMES RASPBERRY PI */
