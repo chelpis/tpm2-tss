@@ -18,6 +18,7 @@
 #define LOGMODULE esys
 #include "util/log.h"
 #include "util/aux_util.h"
+#include "util/gpio-rpi.h"
 
 /** Initialize an ESYS_CONTEXT for further use.
  *
@@ -48,12 +49,19 @@ Esys_Initialize(ESYS_CONTEXT ** esys_context, TSS2_TCTI_CONTEXT * tcti,
     TSS2_RC r;
     size_t syssize;
 
+    /* Initialize GPIO for status signaling */
+    GPIO_INIT();
+    gpio_set_pin_tss();
+
     _ESYS_ASSERT_NON_NULL(esys_context);
     *esys_context = NULL;
 
     /* Allocate memory for the ESYS context
      * After this errors must jump to cleanup_return instead of returning. */
     *esys_context = calloc(1, sizeof(ESYS_CONTEXT));
+    if (*esys_context == NULL) {           // before return_if_null
+        gpio_clear_pin_tss();
+    }
     return_if_null(*esys_context, "Out of memory.", TSS2_ESYS_RC_MEMORY);
 
     /* Store the application provided tcti to be return on Esys_GetTcti(). */
@@ -99,6 +107,10 @@ cleanup_return:
     free((*esys_context)->sys);
     free(*esys_context);
     *esys_context = NULL;
+
+    /* Finalize GPIO in cleanup */
+    gpio_clear_pin_tss();
+
     return r;
 }
 
@@ -147,6 +159,16 @@ Esys_Finalize(ESYS_CONTEXT ** esys_context)
     /* Free esys_context */
     free(*esys_context);
     *esys_context = NULL;
+
+    /* Finalize GPIO normally
+       Note atexit issue:
+         - gpioInitialise itself registers gpioTerminate to atexit
+         - tpm2-tools registers this function to atexit
+         - atexit callbacks has no definitive execution order
+         - gpioInitialise() can be safely called multiple times */
+    gpioInitialise();
+    gpio_clear_pin_tss();
+    GPIO_DEINIT();
 }
 
 /** Return the used TCTI context.

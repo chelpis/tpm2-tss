@@ -18,6 +18,7 @@
 #define LOGMODULE esys
 #include "util/log.h"
 #include "util/aux_util.h"
+#include "util/gpio-rpi.h"
 
 /** Store command parameters inside the ESYS_CONTEXT for use during _Finish */
 static void store_input_parameters (
@@ -100,8 +101,10 @@ Esys_CreateLoaded(
 {
     TSS2_RC r;
 
+    gpio_set_pin_sct();
     r = Esys_CreateLoaded_Async(esysContext, parentHandle, shandle1, shandle2,
                                 shandle3, inSensitive, inPublic);
+    gpio_clear_pin_sct_if_error(r);
     return_if_error(r, "Error in async function");
 
     /* Set the timeout to indefinite for now, since we want _Finish to block */
@@ -126,6 +129,7 @@ Esys_CreateLoaded(
 
     /* Restore the timeout value to the original value */
     esysContext->timeout = timeouttmp;
+    gpio_clear_pin_sct();           // before exit
     return_if_error(r, "Esys Finish");
 
     return TSS2_RC_SUCCESS;
