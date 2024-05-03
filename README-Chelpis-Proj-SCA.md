@@ -66,7 +66,7 @@ sudo make install
 We will build from source and install softwares for this project.
 
 ```
-git clone -b proj/sca --depth 1 git@github.com:chelpis/tpm2-tss.git
+git clone -b proj/sca --depth 1 https://github.com/chelpis/tpm2-tss.git
 cd tpm2-tss
 ./bootstrap
 ./configure --enable-static=no --enable-fapi=no --disable-tcti-mssim --disable-tcti-swtpm --disable-tcti-libtpms --disable-doxygen-doc
@@ -78,7 +78,7 @@ sudo ldconfig
 ### Install tpm2-tools
 
 ```
-git clone -b 5.7 --depth 1 git@github.com:tpm2-software/tpm2-tools.git
+git clone -b 5.7 --depth 1 https://github.com/tpm2-software/tpm2-tools.git
 cd tpm2-tss
 ./bootstrap
 ./configure --disable-unit --disable-fapi
