@@ -75,6 +75,12 @@ sudo make install
 sudo ldconfig
 ```
 
+#### Uninstall
+
+```
+sudo make uninstall
+```
+
 ### Install tpm2-tools
 
 ```
