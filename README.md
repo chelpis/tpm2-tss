@@ -12,7 +12,7 @@
 
 # Readme for Chelpis project: GPIO signaling for Side-Channel-Attack (SCA) 
 
-See [README-Chelpis-Proj-SCA](README-Chelpis-Proj-SCA.md)
+See [README-Chelpis-Proj-SCA](doc-proj-sca/README-Chelpis-Proj-SCA.md)
 
 # Overview
 

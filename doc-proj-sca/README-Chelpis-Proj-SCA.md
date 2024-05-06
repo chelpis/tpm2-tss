@@ -14,12 +14,12 @@ GPIO signals can be observed using LEDs, or wired to other equipmenets for more 
 
 Stock `tpm2-tools` will be built, installed and directly executed from shell to drive this (moded) TSS and all lower-level components.
 
-## Interested crypto operations
+Interested crypto operations:
 
 - key generation
 - signing (w/ private key)
 
-## Interested algorithms
+Interested algorithms:
 
 - RSA2048
 - P256
@@ -27,8 +27,6 @@ Stock `tpm2-tools` will be built, installed and directly executed from shell to 
 # Setup
 
 We develop & test on [raspberry pi 4b](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) together with [Infineon OPTIGA TPM2 evaluation board for rpi](https://www.infineon.com/cms/en/product/evaluation-boards/optiga-tpm-9672-rpi-eval/)
-
-Simple LEDs are 
 
 ## Hardware Setup
 
@@ -91,3 +89,59 @@ cd tpm2-tss
 make -j4
 sudo make install
 ```
+
+
+
+# Run
+
+## Preparation
+
+```
+mkdir -p sca-test
+cd sca-test
+
+# TPM Primary object is required before creating any child objects (keys)
+sudo tpm2_createprimary -c primary.ctx
+
+# 32 byte digest used for digital signing
+head -c 32 /dev/urandom > digest
+```
+
+### (optional) Get rid of `sudo` below
+
+```
+sudo usermod -aG tss $USER
+```
+
+Log out and log in again.
+
+## Create and load key object to the TPM
+
+Reference [tpm2_create](https://github.com/tpm2-software/tpm2-tools/blob/5.7/man/tpm2_create.1.md) for more details about key creation.
+
+Reference [Algorithm Specifiers](https://github.com/tpm2-software/tpm2-tools/blob/5.7/man/common/alg.md) for more options for other algorithms.
+
+```
+# rsa2048
+sudo tpm2_create -C primary.ctx -G rsa2048 -u rsa2048.pub -r rsa2048.priv -c rsa2048.ctx
+
+# P256
+sudo tpm2_create -C primary.ctx -G ecc256 -u ecc256.pub -r ecc256.priv -c ecc256.ctx
+```
+
+## Sign with the TPM 
+
+Reference [tpm2_sign](https://github.com/tpm2-software/tpm2-tools/blob/5.7/man/tpm2_sign.1.md) for more details
+
+```
+# rsa2048
+sudo tpm2_sign -c rsa2048.ctx -g sha256 -d -f plain -o rsa2048.sig digest
+
+# P256
+sudo tpm2_sign -c ecc256.ctx -g sha256 -d -f plain -o ecc256.sig digest
+```
+
+# Notes for testing LEDs on GPIOs
+
+1. GPIOs are assumed active high, which may not be the case for some LED modules.
+2. raspberry pi os built-in `raspi-gpio` command can be used to test wiring quickly
