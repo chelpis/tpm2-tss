@@ -4,9 +4,9 @@
 #define ENABLE_GPIO     // toggle feature
 #ifdef ENABLE_GPIO
 
-#define GPIO_ACTIVE     1
-#define GPIO_INACTIVE   0
-#define VERBOSE         0
+#define GPIO_VERBOSE
+#define GPIO_ACTIVE     1   //high
+#define GPIO_INACTIVE   (1-GPIO_ACTIVE)
 
 /* ASSUMES RASPBERRY PI */
 /* Expecting reasonably low latency on ALL raspberry pi models*/
@@ -17,35 +17,25 @@
 #define GPIO_PIN_CTX    (27)    // indicate operations on TSS context file (load / save)
 #define GPIO_PIN_SCT    (22)    // indicate operation on secret (keygen / sign)
 
-#define SETUP_PIN(_p)   GPIO_SET_MODE(_p, PI_OUTPUT); GPIO_WRITE(_p, GPIO_INACTIVE)
 
-#define GPIO_INIT() \
-    GPIO_INITIALISE();  \
-    SETUP_PIN(GPIO_PIN_TSS);    \
-    SETUP_PIN(GPIO_PIN_CTX);    \
-    SETUP_PIN(GPIO_PIN_SCT)
-
-#define GPIO_DEINIT()   \
-    gpioInitialise();   \
-    GPIO_SET_MODE(GPIO_PIN_TSS, PI_INPUT);  \
-    GPIO_SET_MODE(GPIO_PIN_CTX, PI_INPUT);  \
-    GPIO_SET_MODE(GPIO_PIN_SCT, PI_INPUT);  \
-    GPIO_TERMINATE()
+void gpio_init(void);
+void gpio_deinit(void);
 
 
 /* avoid extra latency by directly calling pigpio through macros  */
-#if VERBOSE
+#ifdef GPIO_VERBOSE
 #include "stdio.h"
 #define GPIO_INITIALISE()               printf("gpioInitialise() = %d\n", gpioInitialise())
 #define GPIO_TERMINATE()                gpioTerminate(); printf("gpioTerminate()\n")
 #define GPIO_SET_MODE(_p, _m)           printf("gpioSetMode(%d, %d) = %d\n", _p, _m, gpioSetMode(_p, _m))
 #define GPIO_WRITE(_p, _s)              printf("gpioWrite(%d, %d) = %d\n", _p, _s, gpioWrite(_p, _s))
-#else
+#else   // #ifdef GPIO_VERBOSE
 #define GPIO_INITIALISE()               gpioInitialise()
 #define GPIO_TERMINATE()                gpioTerminate()
 #define GPIO_SET_MODE(_p, _m)           gpioSetMode(_p, _m)
 #define GPIO_WRITE(_p, _s)              gpioWrite(_p, _s)
-#endif
+#endif  // #ifdef GPIO_VERBOSE
+
 #define gpio_set_pin_tss()              GPIO_WRITE(GPIO_PIN_TSS, GPIO_ACTIVE)
 #define gpio_clear_pin_tss()            GPIO_WRITE(GPIO_PIN_TSS, GPIO_INACTIVE)
 #define gpio_clear_pin_tss_if_error(_r) if (_r) {GPIO_WRITE(GPIO_PIN_TSS, GPIO_INACTIVE);}
@@ -56,10 +46,8 @@
 #define gpio_clear_pin_sct()            GPIO_WRITE(GPIO_PIN_SCT, GPIO_INACTIVE)
 #define gpio_clear_pin_sct_if_error(_r) if (_r) {GPIO_WRITE(GPIO_PIN_SCT, GPIO_INACTIVE);}
 
-#else   // #ifndef ENABLE_GPIO
+#else   // #ifdef ENABLE_GPIO
 
-#define GPIO_INIT()
-#define GPIO_DEINIT()
 #define gpio_set_pin_tss()
 #define gpio_clear_pin_tss()
 #define gpio_clear_pin_tss_if_error(_r)
@@ -70,6 +58,6 @@
 #define gpio_clear_pin_sct()
 #define gpio_clear_pin_sct_if_error(_r)
 
-#endif  // #ifndef ENABLE_GPIO
+#endif  // #ifdef ENABLE_GPIO
 
 #endif

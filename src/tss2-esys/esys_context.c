@@ -50,7 +50,7 @@ Esys_Initialize(ESYS_CONTEXT ** esys_context, TSS2_TCTI_CONTEXT * tcti,
     size_t syssize;
 
     /* Initialize GPIO for status signaling */
-    GPIO_INIT();
+    gpio_init();
     gpio_set_pin_tss();
 
     _ESYS_ASSERT_NON_NULL(esys_context);
@@ -159,16 +159,6 @@ Esys_Finalize(ESYS_CONTEXT ** esys_context)
     /* Free esys_context */
     free(*esys_context);
     *esys_context = NULL;
-
-    /* Finalize GPIO normally
-       Note atexit issue:
-         - gpioInitialise itself registers gpioTerminate to atexit
-         - tpm2-tools registers this function to atexit
-         - atexit callbacks has no definitive execution order
-         - gpioInitialise() can be safely called multiple times */
-    gpioInitialise();
-    gpio_clear_pin_tss();
-    GPIO_DEINIT();
 }
 
 /** Return the used TCTI context.
