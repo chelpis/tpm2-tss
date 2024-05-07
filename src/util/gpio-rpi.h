@@ -4,7 +4,7 @@
 #define ENABLE_GPIO     // toggle feature
 #ifdef ENABLE_GPIO
 
-#define GPIO_VERBOSE
+// #define GPIO_VERBOSE
 #define GPIO_ACTIVE     1   //high
 #define GPIO_INACTIVE   (1-GPIO_ACTIVE)
 
