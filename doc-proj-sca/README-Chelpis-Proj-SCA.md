@@ -67,7 +67,7 @@ We will build from source and install softwares for this project.
 git clone -b proj/sca --depth 1 https://github.com/chelpis/tpm2-tss.git
 cd tpm2-tss
 ./bootstrap
-./configure --enable-static=no --enable-fapi=no --disable-tcti-mssim --disable-tcti-swtpm --disable-tcti-libtpms --disable-doxygen-doc
+./configure --enable-static=no --disable-tcti-mssim --disable-tcti-swtpm --disable-tcti-libtpms --disable-doxygen-doc --with-udevrulesdir=/etc/udev/rules.d --with-udevrulesprefix=70- --sysconfdir=/etc --localstatedir=/var --runstatedir=/run
 make -j4
 sudo make install
 sudo ldconfig
