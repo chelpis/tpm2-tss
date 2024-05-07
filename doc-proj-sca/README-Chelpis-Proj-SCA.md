@@ -117,7 +117,7 @@ Log out and log in again.
 
 ## Create and load key object to the TPM
 
-Reference [tpm2_create](https://github.com/tpm2-software/tpm2-tools/blob/5.7/man/tpm2_create.1.md) for more details about key creation.
+Reference `tpm2_create` [src](https://github.com/tpm2-software/tpm2-tools/blob/master/tools/tpm2_create.c) and [doc](https://github.com/tpm2-software/tpm2-tools/blob/5.7/man/tpm2_create.1.md) for more details
 
 Reference [Algorithm Specifiers](https://github.com/tpm2-software/tpm2-tools/blob/5.7/man/common/alg.md) for more options for other algorithms.
 
@@ -129,9 +129,20 @@ sudo tpm2_create -C primary.ctx -G rsa2048 -u rsa2048.pub -r rsa2048.priv -c rsa
 sudo tpm2_create -C primary.ctx -G ecc256 -u ecc256.pub -r ecc256.priv -c ecc256.ctx
 ```
 
+### Involved TPM2_CC command codes
+
+```
+ TPM2_CC_GetCapability
+ TPM2_CC_StartAuthSession
+ TPM2_CC_ContextLoad
+ TPM2_CC_CreateLoaded
+ TPM2_CC_ContextSave
+ TPM2_CC_FlushContext
+```
+
 ## Sign with the TPM 
 
-Reference [tpm2_sign](https://github.com/tpm2-software/tpm2-tools/blob/5.7/man/tpm2_sign.1.md) for more details
+Reference `tpm2_sign` [src](https://github.com/tpm2-software/tpm2-tools/blob/master/tools/tpm2_sign.c) and [doc](https://github.com/tpm2-software/tpm2-tools/blob/5.7/man/tpm2_sign.1.md) for more details
 
 ```
 # rsa2048
@@ -141,7 +152,33 @@ sudo tpm2_sign -c rsa2048.ctx -g sha256 -d -f plain -o rsa2048.sig digest
 sudo tpm2_sign -c ecc256.ctx -g sha256 -d -f plain -o ecc256.sig digest
 ```
 
-# Notes for testing LEDs on GPIOs
+### Involved TPM2_CC command codes
+
+```
+ TPM2_CC_GetCapability
+ TPM2_CC_StartAuthSession
+ TPM2_CC_ContextLoad
+ TPM2_CC_ReadPublic
+ TPM2_CC_Sign
+ TPM2_CC_ContextSave
+ TPM2_CC_FlushContext
+```
+
+# Notes
+
+## testing LEDs on GPIOs
 
 1. GPIOs are assumed active high, which may not be the case for some LED modules.
 2. raspberry pi os built-in `raspi-gpio` command can be used to test wiring quickly
+
+## logging with tcti-pcap
+
+Add `-T pcap:device:/dev/tpmrm0` option to `tpm2-tools` command and check file `tpm2_log.pcap` with `tshark`
+
+```
+sudo apt install tshark
+
+sudo tpm2_create -C primary.ctx -G rsa2048 -u rsa2048.pub -r rsa2048.priv -c rsa2048.ctx -T pcap:device:/dev/tpmrm0
+sudo tpm2_sign -c rsa2048.ctx -g sha256 -d -f plain -o rsa2048.sig digest -T pcap:device:/dev/tpmrm0
+sudo tshark -r tpm2_log.pcap
+```
